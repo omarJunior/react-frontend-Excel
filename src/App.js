@@ -1,23 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import { 
+  BrowserRouter as Router, 
+  Switch,
+  Route,
+  Redirect } from 'react-router-dom';
+import { Tabla } from './components/Tabla';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { Contenido } from './components/Contenido';
+import { Clientes } from './components/clientes/Clientes';
+import { Articulo } from './components/articulos/Articulo';
+import { Calificaciones } from './components/calificaciones/Calificaciones';
+import { Productos } from './components/productos/Productos';
+import { Helado } from './components/helados/Helado';
+import { Vehiculos } from './components/vehiculos/Vehiculo';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Router>
+        <Header />
+        <Switch>
+            <Route exact path="/content" component={Contenido} />
+            <Route exact path="/articulos" component={Articulo}/>
+            <Route exact path="/calificaciones" component={Calificaciones} />
+            <Route exact path="/clientes" component={Clientes} />
+            <Route exact path="/helados" component={Helado} />
+            <Route exact path="/productos" component={Productos} />
+            <Route exact path="/vehiculos"  component={Vehiculos} />
+            <Route exact path="/tablaClientes" component={Tabla} />
+            <Redirect to="/content"/>
+          </Switch>
+
+          {/* <Footer /> */}
+      </Router>
     </div>
   );
 }

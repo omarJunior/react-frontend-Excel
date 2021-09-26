@@ -1,15 +1,100 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import DataTable from 'react-data-table-component';
+import styled, { keyframes } from 'styled-components';
+import swal from 'sweetalert';
+import columnas from './columna_vehiculo';
 import '../Generales.css';
 
+const rotate360 = keyframes`
+    from{
+      transform: rotate(0deg) 
+    }
+    to{
+      transform: rotate(360deg)
+    }
+`;
+
+const Spinner = styled.div`
+    margin: 16px;
+    animation: ${rotate360} 1s linear infinite;
+    transform: translateZ(0);
+    border-top: 2px solid grey;
+    border-right: 2px solid grey;
+    border-bottom: 2px solid grey;
+    border-left: 4px solid black;
+    background: transparent;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+`;
+
+const CustomLoader = ()=>{
+    return (
+      <div style={{padding:'24px'}}>
+        <Spinner />
+        <div>Cargando vehiculos...</div>
+      </div>
+    )
+  } 
+
 export const Vehiculos = () => {
-    let state = false
+    let state = false;
+    let state2 = true;
+    let err_slice = false;
+    const arreglo = [];
     const [subido, setSubido] = useState(state);
-    const [file, setFile] = useState([])
-    const [data, setData] = useState([])
+    const [rows, setRows] = useState(arreglo);
+    const [pending, setPending] = useState(state2);
+    const [data_slice, setData_slice] = useState(err_slice);
+
+    useEffect(()=>{
+        const timeout = setTimeout(()=>{
+            setRows(rows);
+            setPending(false);
+        }, 2000);
+        return () => clearTimeout(timeout);
+    },[rows]);
+
+    const customSort = (rows, selector, direction)=>{
+        return rows.sort((a,b)=>{
+            const aField = selector(a).toLowerCase();
+            const bField = selector(b).toLowerCase();
+            let comparison = 0;
+
+            if(aField > bField){
+                comparison = 1;
+            }else if(aField < bField){
+                comparison = -1;
+            }
+            return direction === 'desc' ? comparison * -1 : comparison;
+        });
+    }
+
+    const paginationOptions = {
+        rowsPerPageText:'Filas por pagina',
+        rangeSeparatorText: 'de',
+        selectAllRowsItem: true,
+        selectAllRowsItemText: 'Todos'
+    }
+    const handleSort = (column, sortDirection) => console.log(column.selector, sortDirection);
 
     const handleSubmit = async(e)=>{
         e.preventDefault()
         let datoForm = e.target;
+        if(data_slice &&  rows.length == 0){
+            return swal({
+                title: "Ha ocurrido un error!",
+                text: "Carga primero el archivo antes de mostrar los vehiculos!",
+                icon: "warning",
+                buttons: "Aceptar",
+                dangerMode: true,
+              })
+              .then((willDelete) => {
+                if (willDelete) {
+                    window.location = "/vehiculos";
+                } 
+              });
+        }
         try {
             const resp = await fetch("http://localhost:8000/api/vehiculos/leer-csv/", {
                 method: 'POST',
@@ -17,8 +102,25 @@ export const Vehiculos = () => {
             })
             if(resp.ok){
                 const data = await resp.json();
+                setRows(data);
                 console.log(data);
-                setData(data);
+                if(!Array.isArray(data) && typeof data === "object"){
+                    swal({
+                        title: "¡Mensaje!",
+                        text: `${JSON.stringify(data)}`,
+                        icon: "error",
+                        buttons: "Aceptar",
+                        timer: "3000"
+                    });
+                }else{
+                    swal({
+                        title: "¡Mensaje!",
+                        text: "Csv cargado correctamente en la base de datos",
+                        icon: "success",
+                        buttons: "Aceptar",
+                        timer: "3000"
+                    });
+                }
             }else{
                 console.error("Ha ocurrido un error");
             }
@@ -29,11 +131,20 @@ export const Vehiculos = () => {
     }
 
     const handleButtonClick = ()=>{
-        setSubido(true)
-    }
-
-    const handleInputChange = (e)=>{
-        setFile(e.target.files);
+        if(rows.length === 0){
+            setData_slice(true);
+        }
+        if(!Array.isArray(rows) && typeof rows === "object"){
+            setSubido(false);
+            swal({
+                title: "¡Mensaje!",
+                text: "Asegurate de cargar el csv o un formato correcto!",
+                icon: "warning",
+                buttons: "Aceptar"
+            });
+        }else{
+            setSubido(true);
+        }
     }
 
     return (
@@ -45,7 +156,6 @@ export const Vehiculos = () => {
                         type="file"
                         className="form-control" 
                         name="csvVehiculos"
-                        onChange={handleInputChange}
                     />
                    <div className="div-submit">
                    <input 
@@ -58,34 +168,24 @@ export const Vehiculos = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Vehiculos</button>
                 {
                     subido &&(
-                        <div className="container mt-2">
-                        <table className="table table-hover table-bordered">
-                            <thead className="table-dark">
-                                <tr>
-                                    <th>Placa</th>
-                                    <th>Modelo</th>
-                                    <th>Marca</th>
-                                    <th>Color</th>
-                                    <th>Precio</th>
-                                    <th>Decripcion</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                 data.map( item => {
-                                    return <tr key={item.id} >
-                                        <td>{item.placa}</td>
-                                        <td>{item.modelo}</td>
-                                        <td>{item.modelo}</td>
-                                        <td>{item.color}</td>
-                                        <td>{item.precio}</td>
-                                        <td>{item.descripcion}</td>
-                                    </tr>
-                                 })   
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                        <div className="table-responsive ms-4">
+                            <DataTable 
+                                columns={columnas}
+                                data={rows}
+                                progressPending={pending}
+                                progressComponent={<CustomLoader />}
+                                onSort={handleSort}
+                                sortFunction={customSort}
+                                title="Tabla de vehiculos"
+                                pagination
+                                paginationComponentOptions={paginationOptions}
+                                fixedHeader
+                                fixedHeaderScrollHeight="1000px"
+                                subHeader
+                                /* subHeaderComponent={subHeaderComponentMemo} */
+                                /* persistTableHead */
+                                />
+                        </div>
                     )
                 }
             </div>

@@ -16,17 +16,17 @@ const rotate360 = keyframes`
 
   
 const Spinner = styled.div`
-margin: 16px;
-animation: ${rotate360} 1s linear infinite;
-transform: translateZ(0);
-border-top: 2px solid grey;
-border-right: 2px solid grey;
-border-bottom: 2px solid grey;
-border-left: 4px solid black;
-background: transparent;
-width: 80px;
-height: 80px;
-border-radius: 50%;
+    margin: 16px;
+    animation: ${rotate360} 1s linear infinite;
+    transform: translateZ(0);
+    border-top: 2px solid grey;
+    border-right: 2px solid grey;
+    border-bottom: 2px solid grey;
+    border-left: 4px solid black;
+    background: transparent;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
 `;
 
 const CustomLoader = ()=>{
@@ -39,30 +39,29 @@ const CustomLoader = ()=>{
 } 
 
 export const Clientes = () => {
-    let state = false
+    let state = false;
     let state2 = true;
+    let err_slice = false;
     const arreglo = [];
     const [subido, setSubido] = useState(state);
-    const [rows, setRows] = useState(arreglo)
-    const [pending, setPendig] = useState(state2)
-    const [file, setFile] = useState([])
-
+    const [rows, setRows] = useState(arreglo);
+    const [pending, setPending] = useState(state2);
+    const [data_slice, setData_slice] = useState(err_slice);
+    
     useEffect(() => {
         const timeout = setTimeout(()=>{
             setRows(rows);
-            setPendig(false);
-        }, 2000)
+            setPending(false);
+        }, 2000);
         return () => clearTimeout(timeout);
-    }, []);
+    }, [rows]);
 
-        
     const customSort = (rows, selector, direction) => {
         return rows.sort((a, b) => {
         const aField = selector(a).toLowerCase();
         const bField = selector(b).toLowerCase();
-    
         let comparison = 0;
-    
+
         if (aField > bField) {
             comparison = 1;
         } else if (aField < bField) {
@@ -72,8 +71,6 @@ export const Clientes = () => {
         return direction === 'desc' ? comparison * -1 : comparison;
         });
     }
-
-   
 
     const paginationOptions = {
         rowsPerPageText:'Filas por pagina',
@@ -87,6 +84,21 @@ export const Clientes = () => {
     const handleSubmit = async(e)=>{
         e.preventDefault()
         let datoForm = e.target;
+        if(data_slice &&  rows.length == 0){
+            return swal({
+                title: "Ha ocurrido un error!",
+                text: "Carga primero el archivo antes de mostrar los clientes!",
+                icon: "warning",
+                buttons: "Aceptar",
+                dangerMode: true,
+              })
+              .then((willDelete) => {
+                if (willDelete) {
+                    window.location = "/clientes";
+                } 
+              });
+        }
+
         try {
             const resp = await fetch("http://localhost:8000/api/clientes/leer-csv/", {
                 method: 'POST',
@@ -96,7 +108,7 @@ export const Clientes = () => {
                 const data = await resp.json();
                 setRows(data);
                 console.log(data)
-                if(!Array.isArray(data)){
+                if(!Array.isArray(data) && typeof data === "object"){
                     swal({
                         title: "¡Mensaje!",
                         text: `${JSON.stringify(data)}`,
@@ -123,7 +135,10 @@ export const Clientes = () => {
     }
 
     const handleButtonClick = ()=>{
-        if(!Array.isArray(rows)){
+        if(rows.length === 0){
+            setData_slice(true);
+        }
+        if(!Array.isArray(rows) && typeof rows === "object"){
             setSubido(false);
             swal({
                 title: "¡Mensaje!",
@@ -132,12 +147,8 @@ export const Clientes = () => {
                 buttons: "Aceptar"
             });
         }else{
-            setSubido(true)
+            setSubido(true);
         }
-    }
-
-    const handleInputChange = (e)=>{
-        setFile(e.target.files);
     }
 
     return (
@@ -149,12 +160,11 @@ export const Clientes = () => {
                         type="file"
                         className="form-control" 
                         name="csvClientes"
-                        onChange={handleInputChange}
                     />
                     <div className="div-submit">
                         <input 
                             type="submit"
-                            className="btn btn-success"
+                            className="btn btn-success mt-2"
                             value="Cargar excel de clientes"
                         />
                     </div>

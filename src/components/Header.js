@@ -31,6 +31,10 @@ export const Header = () => {
                         <li className="nav-item">
                             <NavLink activeClassName="selected" className="navbar-brand" to="/articulos">Articulos</NavLink>
                         </li>
+
+                        <li className="nav-item">
+                            <NavLink activeClassName="selected" className="navbar-brand" to="/saberPro">saberPro</NavLink>
+                        </li>
                     </ul>
                     </div>
                 </div>

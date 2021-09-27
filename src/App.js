@@ -13,6 +13,7 @@ import { Calificaciones } from './components/calificaciones/Calificaciones';
 import { Productos } from './components/productos/Productos';
 import { Helado } from './components/helados/Helado';
 import { Vehiculos } from './components/vehiculos/Vehiculo';
+import { SaberPro } from './components/saberpro/SaberPro';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route exact path="/helados" component={Helado} />
             <Route exact path="/productos" component={Productos} />
             <Route exact path="/vehiculos"  component={Vehiculos} />
+            <Route exact path="/saberPro" component={SaberPro}/>
             <Route exact path="/tablaClientes" component={Tabla} />
             <Redirect to="/content"/>
           </Switch>

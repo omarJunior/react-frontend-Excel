@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
-import columnas from './columna_producto';
+import { columnas } from './columna_producto';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -32,20 +32,62 @@ const CustomLoader = ()=>{
     return (
       <div style={{padding:'24px'}}>
         <Spinner />
-        <div>Cargando clientes...</div>
+        <div>Cargando productos...</div>
       </div>
     )
   } 
 
+  const convertArrayOfObjectsToCSV = (array)=>{
+    let result;
+    const columnDelimiter = ';';
+    const lineDelimiter = '\n';
+    const keys = ['codigo', 'productoName', 'precio', 'stock', 'unidad', 'descuento', 'total'];
+
+    result = '';
+    result += keys.join(columnDelimiter);
+    result += lineDelimiter;
+
+    array.forEach(item => {
+        let ctr = 0;
+        keys.forEach(key => {
+            if (ctr > 0) result += columnDelimiter;
+
+            result += item[key];
+            
+            ctr++;
+        });
+        result += lineDelimiter;
+    });
+
+    return result;
+}
+
+const downloadCSV = (array)=>{
+    const link = document.createElement('a');
+    let csv = convertArrayOfObjectsToCSV(array);
+    if (csv == null) return;
+
+    const filename = 'productos.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+        csv = `data:text/csv;charset=utf-8,${csv}`;
+    }
+
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', filename);
+    link.click();
+}   
+
 export const Productos = () => {
-    let state = false;
     let state2 = true;
     let err_slice = false;
+    let estadoStorage = false;
     const arreglo = [];
-    const [subido, setSubido] = useState(state);
     const [rows, setRows] = useState(arreglo);
     const [pending, setPending] = useState(state2);
     const [data_slice, setData_slice] = useState(err_slice);
+    const [data_storage, setData_storage] = useState([]);
+    const [estado_storage, setEstado_storage] = useState(estadoStorage);
 
     useEffect(() => {
         const timeout = setTimeout(()=>{
@@ -54,6 +96,10 @@ export const Productos = () => {
         }, 2000)
         return () => clearTimeout(timeout);
     }, [rows]);
+
+    useEffect(() => {
+        obtenerLocalStorage('productos');
+     }, []);
 
     const customSort = (rows, selector, direction) => {
         return rows.sort((a, b) => {
@@ -81,10 +127,23 @@ export const Productos = () => {
       
     const handleSort = (column, sortDirection) => console.log(column.selector, sortDirection);
 
+    const guardarLocalStorage = (dato)=>{
+        localStorage.setItem('productos', JSON.stringify(dato));
+    }
+    const obtenerLocalStorage = (nombre) => {
+        const dato = JSON.parse(localStorage.getItem(nombre));
+        if(Array.isArray(dato) && dato !== null){
+            setData_storage(dato);
+        }else{
+            console.log("Aun no hay data en el localstorage");
+            return dato;
+        }
+    }
+
     const handleSubmit = async(e)=>{
         e.preventDefault()
         let datoForm = e.target;
-        if(data_slice &&  rows.length == 0){
+        if(data_slice &&  rows.length === 0){
             return swal({
                 title: "Ha ocurrido un error!",
                 text: "Carga primero el archivo antes de mostrar los productos!",
@@ -108,14 +167,16 @@ export const Productos = () => {
                 setRows(data);
                 console.log(data);
                 if(!Array.isArray(data) && typeof data === "object"){
+                    let mensaje = data.Data;
                     swal({
                         title: "¡Mensaje!",
-                        text: `${JSON.stringify(data)}`,
+                        text: mensaje,
                         icon: "error",
                         buttons: "Aceptar",
                         timer: "3000"
                     });
                 }else{
+                    guardarLocalStorage(data);
                     swal({
                         title: "¡Mensaje!",
                         text: "Csv cargado correctamente en la base de datos",
@@ -138,8 +199,7 @@ export const Productos = () => {
             setData_slice(true);
         }
 
-        if(!Array.isArray(rows) && typeof rows === "object"){
-            setSubido(false);
+        if(!Array.isArray(rows) && typeof rows == "object"){
             swal({
                 title: "¡Mensaje!",
                 text: "Asegurate de cargar el csv o un formato correcto!",
@@ -147,10 +207,22 @@ export const Productos = () => {
                 buttons: "Aceptar"
             });
         }else{
-            setSubido(true);
+            obtenerLocalStorage('productos');
         }
     }
 
+    const handleClickRemoveTable = ()=>{
+        localStorage.removeItem('productos');
+        const data = obtenerLocalStorage('productos'); 
+        if(data === null){
+            setEstado_storage(true);
+            console.log("Has borrado el localstorage")
+        }
+    }
+
+    const handleClickDowload = (arreglo)=>{
+        downloadCSV(arreglo)
+    }
 
     return (
         <div className="container">
@@ -172,11 +244,11 @@ export const Productos = () => {
                 </form>
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Productos</button>
                 {
-                    subido &&(
+                    localStorage.getItem("productos") !== null && !estado_storage &&(
                         <div className="table-responsive ms-4">
                             <DataTable 
                                 columns={columnas}
-                                data={rows}
+                                data={data_storage}
                                 progressPending={pending}
                                 progressComponent={<CustomLoader />}
                                 onSort={handleSort}
@@ -187,9 +259,9 @@ export const Productos = () => {
                                 fixedHeader
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
-                                /* subHeaderComponent={subHeaderComponentMemo} */
-                                /* persistTableHead */
                                 />
+                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
                     )
                 }

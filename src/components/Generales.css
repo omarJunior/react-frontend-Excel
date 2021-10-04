@@ -33,7 +33,7 @@ body{
     width: 90% !important;
     margin: auto;
     box-sizing: border-box;
-    background: rgba(117, 112, 112, 0.7);
+    background: rgba(161, 158, 158, 0.7);
     padding: 20px;
     border-radius: 10px;
 }
@@ -66,7 +66,24 @@ table tr td{
 
 .cl{
     float: right;
-    margin-right: 55px;
+    margin-right: 62px;
     margin-bottom: 10px;
     letter-spacing: 2px;
+}
+
+.cl2{
+    float: right;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.ms{
+    margin-top: 10px;
+    margin-left: 50px;
+}
+
+
+.btn-danger, .btn-primary{
+    font-size: 12px !important;
 }

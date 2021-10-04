@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
-import columnas from './columna_helado'; //columna helado
+import { columnas } from './columna_helado'; //columna helado
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -33,28 +33,77 @@ const CustomLoader = ()=>{
     return (
       <div style={{padding:'24px'}}>
         <Spinner />
-        <div>Cargando clientes...</div>
+        <div>Cargando helados...</div>
       </div>
     )
-  } 
+} 
+
+
+const convertArrayOfObjectsToCSV = (array)=>{
+    let result;
+    const columnDelimiter = ';';
+    const lineDelimiter = '\n';
+    const keys = ['nombre', 'precio', 'stock'];
+
+    result = '';
+    result += keys.join(columnDelimiter);
+    result += lineDelimiter;
+
+    array.forEach(item => {
+        let ctr = 0;
+        keys.forEach(key => {
+            if (ctr > 0) result += columnDelimiter;
+
+            result += item[key];
+            
+            ctr++;
+        });
+        result += lineDelimiter;
+    });
+
+    return result;
+}
+
+const downloadCSV = (array)=>{
+    const link = document.createElement('a');
+    let csv = convertArrayOfObjectsToCSV(array);
+    if (csv == null) return;
+
+    const filename = 'helados.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+        csv = `data:text/csv;charset=utf-8,${csv}`;
+    }
+
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', filename);
+    link.click();
+}    
+
   
 export const Helado = () => {
-    let state = false;
     let state2 = true;
     let err_slice = false;
+    let estadoStorage = false;
     const arreglo = [];
-    const [subido, setSubido] = useState(state);
     const [rows, setRows] = useState(arreglo);
-    const [pending, setPendig] = useState(state2);
+    const [pending, setPending] = useState(state2);
     const [data_slice, setData_slice] = useState(err_slice);
+    const [data_storage, setData_storage] = useState([]);
+    const [estado_storage, setEstado_storage] = useState(estadoStorage);
+
 
     useEffect(() => {
         const timeout = setTimeout(()=>{
             setRows(rows);
-            setPendig(false);
-        }, 2000)
+            setPending(false);
+        }, 1000)
         return () => clearTimeout(timeout);
     }, [rows]);
+    
+    useEffect(()=>{
+        obtenerLocalStorage('helados');
+    }, []);
 
     const customSort = (rows, selector, direction) => {
         return rows.sort((a, b) => {
@@ -83,10 +132,24 @@ export const Helado = () => {
       
     const handleSort = (column, sortDirection) => console.log(column.selector, sortDirection);
 
+    const guardarLocalStorage = (dato)=>{
+        localStorage.setItem('helados',JSON.stringify(dato));
+    }
+
+    const obtenerLocalStorage = (nombre) => {
+        const dato = JSON.parse(localStorage.getItem(nombre));
+        if(Array.isArray(dato) && dato !== null){
+            setData_storage(dato);
+        }else{
+            console.log("Aun no hay data en el localstorage");
+            return dato;
+        }
+    }
+
     const handleSubmit = async(e)=>{
         e.preventDefault()
         let datoForm = e.target;
-        if(data_slice &&  rows.length == 0){
+        if(data_slice &&  rows.length === 0){
             return swal({
                 title: "Ha ocurrido un error!",
                 text: "Carga primero el archivo antes de mostrar los helados!",
@@ -110,14 +173,16 @@ export const Helado = () => {
                 setRows(data);
                 console.log(data);
                 if(!Array.isArray(data) && typeof data === "object"){
+                    let mensaje = data.Data;
                     swal({
                         title: "¡Mensaje!",
-                        text: `${JSON.stringify(data)}`,
+                        text: mensaje,
                         icon: "error",
                         buttons: "Aceptar",
                         timer: "3000"
                     });
                 }else{
+                    guardarLocalStorage(data);
                     swal({
                         title: "¡Mensaje!",
                         text: "Csv cargado correctamente en la base de datos",
@@ -139,8 +204,7 @@ export const Helado = () => {
         if(rows.length === 0){
             setData_slice(true);
         }
-        if(!Array.isArray(rows) && typeof rows === "object"){
-            setSubido(false);
+        if(!Array.isArray(rows) && typeof rows == "object"){
             swal({
                 title: "¡Mensaje!",
                 text: "Asegurate de cargar el csv o un formato correcto!",
@@ -148,8 +212,21 @@ export const Helado = () => {
                 buttons: "Aceptar"
             });
         }else{
-            setSubido(true)
+            obtenerLocalStorage('helados');
         }
+    }
+
+    const handleClickRemoveTable = ()=>{
+        localStorage.removeItem('helados');
+        const data = obtenerLocalStorage('helados');
+        if(data === null){
+            setEstado_storage(true);
+            console.log('Has borrado el localstorage');
+        }
+    }
+
+    const handleClickDowload = (arreglo)=>{
+        downloadCSV(arreglo);
     }
 
     return (
@@ -172,11 +249,11 @@ export const Helado = () => {
                 </form>
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Helados</button>
                 {
-                    subido &&(
-                        <div className="table-responsive ms-4">
+                     localStorage.getItem("helados") !== null && !estado_storage &&(
+                        <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
-                                data={rows}
+                                data={data_storage}
                                 progressPending={pending}
                                 progressComponent={<CustomLoader />}
                                 onSort={handleSort}
@@ -187,9 +264,9 @@ export const Helado = () => {
                                 fixedHeader
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
-                                /* subHeaderComponent={subHeaderComponentMemo} */
-                                /* persistTableHead */
                                 />
+                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
                     )
                 }

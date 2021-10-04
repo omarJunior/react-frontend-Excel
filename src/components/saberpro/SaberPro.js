@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
-import columnas from './columnas_saber_pro';
+import {columnas} from './columnas_saber_pro';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -38,16 +38,59 @@ const CustomLoader = ()=>{
   )
 } 
 
+const convertArrayOfObjectsToCSV = (array)=>{
+    let result;
+    const columnDelimiter = ';';
+    const lineDelimiter = '\n';
+    const keys = ['nombres', 'apellidos', 'genero', 'ciudad', 'matematicas', 'lenguaje', 'ciencias', 'ingles', 'ciudadanas', 'fisica'];
+
+    result = '';
+    result += keys.join(columnDelimiter);
+    result += lineDelimiter;
+
+    array.forEach(item => {
+        let ctr = 0;
+        keys.forEach(key => {
+            if (ctr > 0) result += columnDelimiter;
+
+            result += item[key];
+            
+            ctr++;
+        });
+        result += lineDelimiter;
+    });
+
+    return result;
+}
+
+const downloadCSV = (array)=>{
+    const link = document.createElement('a');
+    let csv = convertArrayOfObjectsToCSV(array);
+    if (csv == null) return;
+
+    const filename = 'saberPro.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+        csv = `data:text/csv;charset=utf-8,${csv}`;
+    }
+
+    link.setAttribute('href', encodeURI(csv));
+    link.setAttribute('download', filename);
+    link.click();
+}    
+
 
 export const SaberPro = () => {
-    let state = false;
     let state2 = true;
     let err_slice = false;
+    let estadoStorage = false;
     const arreglo = [];
-    const [subido, setSubido] = useState(state);
     const [rows, setRows] = useState(arreglo);
     const [pending, setPending] = useState(state2);
     const [data_slice, setData_slice] = useState(err_slice);
+    const [data_storage, setData_storage] = useState([]);
+    const [estado_storage, setEstado_storage] = useState(estadoStorage);
+
     
     useEffect(() => {
         const timeout = setTimeout(()=>{
@@ -56,6 +99,10 @@ export const SaberPro = () => {
         }, 2000);
         return () => clearTimeout(timeout);
     }, [rows]);
+
+    useEffect(() => {
+        obtenerLocalStorage('saberPro');
+     }, []);
 
     const customSort = (rows, selector, direction) => {
         return rows.sort((a, b) => {
@@ -82,10 +129,23 @@ export const SaberPro = () => {
       
     const handleSort = (column, sortDirection) => console.log(column.selector, sortDirection);
 
+    const guardarLocalStorage = (dato)=>{
+        localStorage.setItem('saberPro',JSON.stringify(dato));
+    }
+    const obtenerLocalStorage = (nombre) => {
+        const dato = JSON.parse(localStorage.getItem(nombre));
+        if(Array.isArray(dato) && dato !== null){
+            setData_storage(dato);
+        }else{
+            console.log("Aun no hay data en el localstorage");
+            return dato;
+        }
+    }
+
     const handleSubmit = async(e)=>{
         e.preventDefault()
         let datoForm = e.target;
-        if(data_slice &&  rows.length == 0){
+        if(data_slice &&  rows.length === 0){
             return swal({
                 title: "Ha ocurrido un error!",
                 text: "Carga primero el archivo antes de mostrar las pruebasPro!",
@@ -110,14 +170,16 @@ export const SaberPro = () => {
                 setRows(data);
                 console.log(data)
                 if(!Array.isArray(data) && typeof data === "object"){
+                    let mensaje = data.Data;
                     swal({
                         title: "¡Mensaje!",
-                        text: `${JSON.stringify(data)}`,
+                        text: mensaje,
                         icon: "error",
                         buttons: "Aceptar",
                         timer: "3000"
                     });
                 }else{
+                    guardarLocalStorage(data);
                     swal({
                         title: "¡Mensaje!",
                         text: "Csv cargado correctamente en la base de datos",
@@ -140,7 +202,6 @@ export const SaberPro = () => {
             setData_slice(true);
         }
         if(!Array.isArray(rows) && typeof rows === "object"){
-            setSubido(false);
             swal({
                 title: "¡Mensaje!",
                 text: "Asegurate de cargar el csv o un formato correcto!",
@@ -148,9 +209,23 @@ export const SaberPro = () => {
                 buttons: "Aceptar"
             });
         }else{
-            setSubido(true);
+            obtenerLocalStorage('saberPro');
         }
     }
+
+    const handleClickRemoveTable = ()=>{
+        localStorage.removeItem('saberPro');
+        const data = obtenerLocalStorage('saberPro'); 
+        if(data === null){
+            setEstado_storage(true);
+            console.log("Has borrado el localstorage")
+        }
+    }
+
+    const handleClickDowload = (arreglo)=>{
+        downloadCSV(arreglo)
+    }
+
 
     return (
         <div className="container">
@@ -165,18 +240,18 @@ export const SaberPro = () => {
                     <div className="div-submit">
                         <input 
                             type="submit"
-                            className="btn btn-success mt-2"
+                            className="btn btn-success"
                             value="Cargar excel de saberPro"
                         />
                     </div>
                 </form>
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Pruebas</button>
                 {
-                    subido &&(
-                        <div className="table-responsive ms-4">
+                    localStorage.getItem("saberPro") !== null && !estado_storage  &&(
+                        <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
-                                data={rows}
+                                data={data_storage}
                                 progressPending={pending}
                                 progressComponent={<CustomLoader />}
                                 onSort={handleSort}
@@ -187,9 +262,10 @@ export const SaberPro = () => {
                                 fixedHeader
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
-                                /* subHeaderComponent={subHeaderComponentMemo} */
-                                /* persistTableHead */
                                 />
+
+                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
                     )
                 }

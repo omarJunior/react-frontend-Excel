@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
 import { columnas } from './columna_producto';
+import { Button, Modal, ModalBody, ModalFooter, FormGroup, Input, Label, ModalHeader } from 'reactstrap';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -79,6 +80,7 @@ const downloadCSV = (array)=>{
 }   
 
 export const Productos = () => {
+    let estadoModal = false;
     let state2 = true;
     let err_slice = false;
     let estadoStorage = false;
@@ -88,6 +90,7 @@ export const Productos = () => {
     const [data_slice, setData_slice] = useState(err_slice);
     const [data_storage, setData_storage] = useState([]);
     const [estado_storage, setEstado_storage] = useState(estadoStorage);
+    const [modal_state, setModal_state] = useState(estadoModal);
 
     useEffect(() => {
         const timeout = setTimeout(()=>{
@@ -224,6 +227,62 @@ export const Productos = () => {
         downloadCSV(arreglo)
     }
 
+    const abrirModal = ()=>{
+        setModal_state(true);
+    }
+
+    const cerrarModal = ()=>{
+        setModal_state(false);
+    }
+
+    const insertarProducto = async()=>{
+        try{
+            let codigo = document.querySelector("#codigo").value;
+            let productoName = document.querySelector("#productoName").value;
+            let precio = document.querySelector("#precio").value;
+            let stock = document.querySelector("#stock").value;
+            let unidad = document.querySelector("#unidad").value;
+            let descuento = document.querySelector("#descuento").value;
+            let total = document.querySelector("#total").value;
+
+            const body = {
+                codigo,
+                productoName,
+                precio,
+                stock,
+                unidad,
+                descuento,
+                total
+            };
+
+            const resp = await fetch("http://localhost:8000/api/productos/", { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) } );
+            if(resp.ok){
+                const data = await resp.json();
+                console.log("Datos insertados");
+                console.log(data);
+                setModal_state(false);
+                const datosStorage = JSON.parse(localStorage.getItem("productos"));
+                datosStorage.unshift(data);
+                guardarLocalStorage(datosStorage);
+                return swal({
+                    title: "¡Mensaje!",
+                    text: "Producto insertado correctamente!",
+                    icon: "success",
+                    buttons: "Aceptar"
+                }).then(yes_ =>{
+                    if(yes_){
+                        window.location = "/productos";
+                    }
+                });
+            }else{
+                console.error("Ha ocurrido un error");
+            }
+
+        }catch(e){  
+            throw new Error(e);
+        }
+    }
+
     return (
         <div className="container">
             <div className="content-input">
@@ -245,7 +304,50 @@ export const Productos = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Productos</button>
                 {
                     localStorage.getItem("productos") !== null && !estado_storage &&(
-                        <div className="table-responsive ms-4">
+                        <>
+                            <div className="container mb-4 mt-4">
+                                <Modal isOpen={modal_state} >
+                                    <ModalHeader>
+                                        ¡Actualiza el producto!
+                                    </ModalHeader>
+                                    <ModalBody>
+                                        <FormGroup>
+                                            <Label for="codigo">Codigo</Label>
+                                            <Input type="text" id="codigo" name="codigo"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="productoName">Nombre del producto</Label>
+                                            <Input type="text" id="productoName" name="productoName"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="precio">Precio</Label>
+                                            <Input type="text" id="precio" name="precio"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="stock">Stock</Label>
+                                            <Input type="text" id="stock" name="stock"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="unidad">Unidad</Label>
+                                            <Input type="email" id="unidad" name="unidad"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="descuento">Descuento</Label>
+                                            <Input type="text" id="descuento" name="descuento"></Input>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="total">Total</Label>
+                                            <Input type="text" id="total" name="total"></Input>
+                                        </FormGroup>
+                                    </ModalBody>
+                                    <ModalFooter>
+                                        <Button color="primary" onClick={insertarProducto}>Actualizar Datos</Button>
+                                        <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                    </ModalFooter>
+                                </Modal>
+                            </div>
+                            <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
+                            <div className="table-responsive ms-4">
                             <DataTable 
                                 columns={columnas}
                                 data={data_storage}
@@ -262,7 +364,8 @@ export const Productos = () => {
                                 />
                             <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
                             <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
-                        </div>
+                            </div>
+                        </>
                     )
                 }
             </div>

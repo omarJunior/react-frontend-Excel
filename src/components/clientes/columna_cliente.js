@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import swal from 'sweetalert';
 
+
 let arregloLocalStorage;
 
 const columnas = [
@@ -92,7 +93,6 @@ const guardarDataLocalStorage = ()=>{
   localStorage.setItem('clientes', JSON.stringify(arregloLocalStorage));
   window.location = "/clientes";
 }
-
 
 export {
   columnas

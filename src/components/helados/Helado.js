@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
 import { columnas } from './columna_helado'; //columna helado
+import { Button, Modal, ModalBody, ModalFooter, FormGroup, Input, Label, ModalHeader } from 'reactstrap';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -82,6 +83,7 @@ const downloadCSV = (array)=>{
 
   
 export const Helado = () => {
+    let estadoModal = false;
     let state2 = true;
     let err_slice = false;
     let estadoStorage = false;
@@ -91,7 +93,7 @@ export const Helado = () => {
     const [data_slice, setData_slice] = useState(err_slice);
     const [data_storage, setData_storage] = useState([]);
     const [estado_storage, setEstado_storage] = useState(estadoStorage);
-
+    const [modal_state, setModal_state] = useState(estadoModal)
 
     useEffect(() => {
         const timeout = setTimeout(()=>{
@@ -133,7 +135,7 @@ export const Helado = () => {
     const handleSort = (column, sortDirection) => console.log(column.selector, sortDirection);
 
     const guardarLocalStorage = (dato)=>{
-        localStorage.setItem('helados',JSON.stringify(dato));
+        localStorage.setItem('helados', JSON.stringify(dato));
     }
 
     const obtenerLocalStorage = (nombre) => {
@@ -229,6 +231,53 @@ export const Helado = () => {
         downloadCSV(arreglo);
     }
 
+    const abrirModal = ()=>{
+        setModal_state(true);
+    }
+
+    const cerrarModal = ()=>{
+        setModal_state(false);
+    }
+
+    const insertarHelado = async()=>{
+        try{
+            let nombre = document.getElementById("nombre").value;
+            let precio = document.getElementById("precio").value;
+            let stock = document.getElementById("stock").value;
+
+            const body = {
+                nombre, precio, stock
+            };
+
+            const resp = await fetch(`http://localhost:8000/api/helados/`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)} );
+            if(resp.ok){
+                const data = await resp.json();
+                console.log(data);
+                setModal_state(false);
+                const datoStorage = JSON.parse(localStorage.getItem("helados"));
+                datoStorage.unshift(data);
+                guardarLocalStorage(datoStorage);
+                return swal({
+                    title: "¡Mensaje!",
+                    text: "Helado insertado correctamente!",
+                    icon: "success",
+                    buttons: "Aceptar"
+                }).then(yes_ =>{
+                    if(yes_){
+                        window.location = "/helados"
+                    }
+                });
+            }else{
+                console.error("Ha ocurrido un error");
+            }
+
+        }catch(e){
+            console.error(e)
+            throw new Error(e);
+        }
+
+    }
+
     return (
         <div className="container">
             <div className="content-input">
@@ -250,6 +299,33 @@ export const Helado = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Helados</button>
                 {
                      localStorage.getItem("helados") !== null && !estado_storage &&(
+                        <>
+                          <div className="container mb-4 mt-4">
+                            <Modal isOpen={modal_state}>
+                                <ModalHeader>
+                                    ¡Insertar helados!
+                                </ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <Label for="nombre">Nombre</Label>
+                                        <Input type="text" id="nombre" name="nombre"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="precio">Precio</Label>
+                                        <Input type="text" id="precio" name="precio"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="stock">Stock</Label>
+                                        <Input type="text" id="stock" name="stock"></Input>
+                                    </FormGroup>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="primary" onClick={insertarHelado}>Insertar Datos</Button>
+                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                </ModalFooter>
+                            </Modal>
+                        </div>
+                        <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
                         <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
@@ -265,9 +341,10 @@ export const Helado = () => {
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
                                 />
-                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
-                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
+                                <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                                <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
+                    </>
                     )
                 }
             </div>

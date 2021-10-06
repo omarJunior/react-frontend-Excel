@@ -78,6 +78,11 @@ table tr td{
     letter-spacing: 2px;
 }
 
+.cl3{
+    float:right;
+    margin-right: 7px;
+}
+
 .ms{
     margin-top: 10px;
     margin-left: 50px;

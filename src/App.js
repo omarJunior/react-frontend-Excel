@@ -19,9 +19,8 @@ import { HeladoFormModal } from './components/helados/HeladoFormModal';
 import { CalificacionFormModal } from './components/calificaciones/CalificacionFormModal';
 import { ProductoFormModal } from './components/productos/ProductoFormModal';
 import { VehiculoFormModal } from './components/vehiculos/VehiculoFormModal';
-import { ArticuloForm } from './components/articulos/ArticuloForm';
-import { SaberproForm } from './components/saberpro/SaberproForm';
-
+import { ArticuloFormModal } from './components/articulos/ArticuloFormModal';
+import { SaberProFormModal } from './components/saberpro/SaberProFormModal';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -34,7 +33,7 @@ function App() {
             <Route exact path="/content" component={Contenido} />
 
             <Route exact path="/articulos" component={Articulo}/>
-            <Route exact path="/articulos/:id" component={ArticuloForm} />
+            <Route exact path="/articulos/:id" component={ArticuloFormModal} />
 
             <Route exact path="/calificaciones" component={Calificaciones} />
             <Route exact path="/calificaciones/:id" component={ CalificacionFormModal } />
@@ -52,7 +51,7 @@ function App() {
             <Route exact path="/vehiculos/:id" component={VehiculoFormModal} />
 
             <Route exact path="/saberPro" component={SaberPro}/>
-            <Route exact path="/saberPro/:id" component={SaberproForm} />
+            <Route exact path="/saberPro/:id" component={SaberProFormModal} />
 
             <Redirect to="/content"/>
           </Switch>

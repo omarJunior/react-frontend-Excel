@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
 import {columnas} from './columnas_saber_pro';
+import { Button, Modal, ModalBody, ModalFooter, FormGroup, Input, Label, ModalHeader } from 'reactstrap';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -81,6 +82,7 @@ const downloadCSV = (array)=>{
 
 
 export const SaberPro = () => {
+    let estadoModal = false;
     let state2 = true;
     let err_slice = false;
     let estadoStorage = false;
@@ -90,6 +92,7 @@ export const SaberPro = () => {
     const [data_slice, setData_slice] = useState(err_slice);
     const [data_storage, setData_storage] = useState([]);
     const [estado_storage, setEstado_storage] = useState(estadoStorage);
+    const [modal_state, setModal_state] = useState(estadoModal);
 
     
     useEffect(() => {
@@ -226,6 +229,67 @@ export const SaberPro = () => {
         downloadCSV(arreglo)
     }
 
+    const abrirModal = ()=>{
+        setModal_state(true);
+    }
+
+    const cerrarModal = ()=>{
+        setModal_state(false);
+    }
+
+    const insertarPruebaSaberPro = async()=>{
+        try{
+            let nombres = document.getElementById("nombres").value;
+            let apellidos = document.getElementById("apellidos").value;
+            let genero = document.getElementById("genero").value;
+            let ciudad = document.getElementById("ciudad").value;
+            let matematicas = document.getElementById("matematicas").value;
+            let lenguaje = document.getElementById("lenguaje").value;
+            let ciencias = document.getElementById("ciencias").value;
+            let ingles = document.getElementById("ingles").value;
+            let ciudadanas = document.getElementById("ciudadanas").value;
+            let fisica = document.getElementById("fisica").value;
+
+            const body = {
+                nombres,
+                apellidos,
+                genero,
+                ciudad,
+                matematicas,
+                lenguaje,
+                ciencias,
+                ingles,
+                ciudadanas,
+                fisica,
+            };
+
+            const resp = await fetch("http://localhost:8000/api/saberPro/", { method:'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if(resp.ok){
+                const data = await resp.json();
+                console.log("Datos insertados");
+                console.log(data);
+                setModal_state(false);
+                const datosStorage = JSON.parse(localStorage.getItem("saberPro"));
+                datosStorage.unshift(data);
+                guardarLocalStorage(datosStorage);
+                return swal({
+                    title: "¡Mensaje!",
+                    text: "Prueba insertada correctamente!",
+                    icon: "success",
+                    buttons: "Aceptar"
+                }).then(yes_ =>{
+                    if(yes_){
+                        window.location = "/saberPro"
+                    }
+                });
+            }else{
+                console.error("Ha ocurrido un error");
+            }
+
+        }catch(e){
+            throw new Error(e);
+        }
+    }
 
     return (
         <div className="container">
@@ -248,6 +312,62 @@ export const SaberPro = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Pruebas</button>
                 {
                     localStorage.getItem("saberPro") !== null && !estado_storage  &&(
+                        <>
+                         <div className="container mb-4 mt-4">
+                            <Modal isOpen={modal_state}>
+                                <ModalHeader>
+                                    ¡Insertar pruebasPro!
+                                </ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <Label for="nombres">Nombres</Label>
+                                        <Input type="text" id="nombres" name="nombres"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="apellidos">Apellidos</Label>
+                                        <Input type="text" id="apellidos" name="apellidos"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="genero">Genero</Label>
+                                        <Input type="text" id="genero" name="genero"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="ciudad">Ciudad</Label>
+                                        <Input type="text" id="ciudad" name="ciudad"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="matematicas">Matematicas</Label>
+                                        <Input type="email" id="matematicas" name="matematicas"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="lenguaje">Lenguaje</Label>
+                                        <Input type="text" id="lenguaje" name="lenguaje"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="ciencias">Ciencias</Label>
+                                        <Input type="text" id="ciencias" name="ciencias"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="ingles">Ingles</Label>
+                                        <Input type="text" id="ingles" name="ingles"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="ciudadanas">Ciudadanas</Label>
+                                        <Input type="text" id="ciudadanas" name="ciudadanas"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="fisica">Fisica</Label>
+                                        <Input type="text" id="fisica" name="fisica"></Input>
+                                    </FormGroup>
+
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="primary" onClick={insertarPruebaSaberPro}>Insertar Datos</Button>
+                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                </ModalFooter>
+                            </Modal>
+                        </div>
+                        <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
                         <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
@@ -267,6 +387,7 @@ export const SaberPro = () => {
                             <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
                             <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
+                        </>
                     )
                 }
             </div>

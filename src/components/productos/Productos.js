@@ -308,7 +308,7 @@ export const Productos = () => {
                             <div className="container mb-4 mt-4">
                                 <Modal isOpen={modal_state} >
                                     <ModalHeader>
-                                        ¡Actualiza el producto!
+                                        ¡Insertar el producto!
                                     </ModalHeader>
                                     <ModalBody>
                                         <FormGroup>

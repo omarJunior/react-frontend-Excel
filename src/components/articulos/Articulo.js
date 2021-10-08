@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
 import {columnas} from './columna_articulo';
+import { Button, Modal, ModalBody, ModalFooter, FormGroup, Input, Label, ModalHeader } from 'reactstrap';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -80,6 +81,7 @@ const downloadCSV = (array)=>{
 }    
 
 export const Articulo = () => {
+    let estadoModal = false;
     let state2 = true;
     let err_slice = false;
     let estadoStorage = false;
@@ -89,6 +91,7 @@ export const Articulo = () => {
     const [data_slice, setData_slice] = useState(err_slice);
     const [data_storage, setData_storage] = useState([]);
     const [estado_storage, setEstado_storage] = useState(estadoStorage);
+    const [modal_state, setModal_state] = useState(estadoModal);
 
     useEffect(() => {
         const timeout = setTimeout(()=>{
@@ -224,6 +227,56 @@ export const Articulo = () => {
         downloadCSV(arreglo)
     }
 
+    const abrirModal = ()=>{
+        setModal_state(true);
+    }
+
+    const cerrarModal = ()=>{
+        setModal_state(false);
+    }
+
+    const insertarArticulo = async()=>{
+        try{
+            let nombres = document.getElementById("nombres").value;
+            let precio = document.getElementById("precio").value;
+            let iva = document.getElementById("iva").value;
+            let descripcion = document.getElementById("descripcion").value;
+            let stock = document.getElementById("stock").value;
+            let cantidad = document.getElementById("cantidad").value;
+            let tipo = document.getElementById("tipo").value;
+
+            const body = {
+                nombres, precio, iva, descripcion, stock, cantidad, tipo
+            };
+
+            const resp = await fetch("http://localhost:8000/api/articulos/", {method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body)} );
+            if(resp.ok){
+                const data = await resp.json();
+                console.log("Datos insertados");
+                console.log(data);
+                setModal_state(false);
+                const datosStorage = JSON.parse(localStorage.getItem("articulos"));
+                datosStorage.unshift(data);
+                guardarLocalStorage(datosStorage);
+                return swal({
+                    title: "¡Mensaje!",
+                    text: "Articulo insertado correctamente!",
+                    icon: "success",
+                    buttons: "Aceptar"
+                }).then(yes_ =>{
+                    if(yes_){
+                        window.location = "/articulos"
+                    }
+                });
+            }else{
+                console.error("Ha ocurrido un error");
+            }
+
+        }catch(e){
+            throw new Error(e);
+        }
+    }
+
     return (
         <div className="container">
             <div className="content-input">
@@ -245,7 +298,50 @@ export const Articulo = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Articulos</button>
                 {
                     localStorage.getItem("articulos") !== null && !estado_storage &&(
-                        <div className="table-responsive ms">
+                        <>
+                        <div className="container mb-4 mt-4">
+                            <Modal isOpen={modal_state}>
+                                <ModalHeader>
+                                    ¡Insertar articulos!
+                                </ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <Label for="nombres">Nombres</Label>
+                                        <Input type="text" id="nombres" name="nombres"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="precio">Precio</Label>
+                                        <Input type="text" id="precio" name="precio"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="iva">Iva</Label>
+                                        <Input type="text" id="iva" name="iva"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="descripcion">Descripcion</Label>
+                                        <Input type="text" id="descripcion" name="descripcion"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="stock">Stock</Label>
+                                        <Input type="text" id="stock" name="stock"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="cantidad">Cantidad</Label>
+                                        <Input type="text" id="cantidad" name="cantidad"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="Tipo">Tipo</Label>
+                                        <Input type="text" id="tipo" name="tipo"></Input>
+                                    </FormGroup>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="primary" onClick={insertarArticulo}>Insertar Datos</Button>
+                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                </ModalFooter>
+                            </Modal>
+                        </div>
+                        <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
+                            <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
                                 data={data_storage}
@@ -263,6 +359,7 @@ export const Articulo = () => {
                                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
                                 <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
+                        </>
                     )
                 }
             </div>

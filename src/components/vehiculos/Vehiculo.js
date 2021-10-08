@@ -3,6 +3,7 @@ import DataTable from 'react-data-table-component';
 import styled, { keyframes } from 'styled-components';
 import swal from 'sweetalert';
 import { columnas } from './columna_vehiculo';
+import { Button, Modal, ModalBody, ModalFooter, FormGroup, Input, Label, ModalHeader } from 'reactstrap';
 import '../Generales.css';
 
 const rotate360 = keyframes`
@@ -81,6 +82,7 @@ const downloadCSV = (array)=>{
 
 
 export const Vehiculos = () => {
+    let estadoModal = false;
     let state2 = true;
     let err_slice = false;
     let estadoStorage = false;
@@ -90,6 +92,7 @@ export const Vehiculos = () => {
     const [data_slice, setData_slice] = useState(err_slice);
     const [data_storage, setData_storage] = useState([]);
     const [estado_storage, setEstado_storage] = useState(estadoStorage);
+    const [modal_state, setModal_state] = useState(estadoModal);
 
     useEffect(()=>{
         const timeout = setTimeout(()=>{
@@ -222,6 +225,60 @@ export const Vehiculos = () => {
         downloadCSV(arreglo)
     }
 
+    const abrirModal = ()=>{
+        setModal_state(true);
+    }
+
+    const cerrarModal = ()=>{
+        setModal_state(false);
+    }
+
+    const insertarVehiculo = async()=>{
+        try{
+            let placa = document.querySelector("#placa").value;
+            let modelo = document.querySelector("#modelo").value;
+            let marca = document.querySelector("#marca").value;
+            let color = document.querySelector("#color").value;
+            let precio = document.querySelector("#precio").value;
+            let descripcion = document.querySelector("#descripcion").value;
+
+            const body = {
+                placa, 
+                modelo, 
+                marca, 
+                color, 
+                precio, 
+                descripcion
+            };
+
+            const resp = await fetch("http://localhost:8000/api/vehiculos/", { method: 'POST', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify(body) });
+            if(resp.ok){
+                const data = await resp.json();
+                console.log("Datos insertados");
+                console.log(data);
+                setModal_state(false);
+                const datoStorage = JSON.parse(localStorage.getItem("vehiculos"));
+                datoStorage.unshift(data);
+                guardarLocalStorage(datoStorage);
+                return swal({
+                    title: "¡Mensaje!",
+                    text: "Vehiculo insertado correctamente!",
+                    icon: "success",
+                    buttons: "Aceptar"
+                }).then(yes_ =>{
+                    if(yes_){
+                        window.location = "/vehiculos"
+                    }
+                });
+            }else{
+                console.error("Hubo un error en la response");
+            }
+
+        }catch(error){
+            throw new Error(error);
+        }
+    }
+
     return (
         <div className="container">
             <div className="content-input">
@@ -243,6 +300,45 @@ export const Vehiculos = () => {
                 <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Vehiculos</button>
                 {
                     localStorage.getItem("vehiculos") !== null && !estado_storage &&(
+                        <>
+                        <div className="container mb-4 mt-4">
+                            <Modal isOpen={modal_state} >
+                                <ModalHeader>
+                                    inserta el vehiculo!
+                                </ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <Label for="placa">Placa</Label>
+                                        <Input type="text" id="placa" name="placa"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="modelo">Modelo</Label>
+                                        <Input type="text" id="modelo" name="modelo"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="marca">Marca</Label>
+                                        <Input type="text" id="marca" name="marca"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="color">Color</Label>
+                                        <Input type="text" id="color" name="color"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="precio">Precio</Label>
+                                        <Input type="email" id="precio" name="precio"></Input>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Label for="descripcion">Descripcion</Label>
+                                        <Input type="text" id="descripcion" name="descripcion"></Input>
+                                    </FormGroup>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="primary" onClick={insertarVehiculo}>Actualizar Datos</Button>
+                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                </ModalFooter>
+                            </Modal>
+                        </div>
+                        <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
                         <div className="table-responsive ms">
                             <DataTable 
                                 columns={columnas}
@@ -261,6 +357,7 @@ export const Vehiculos = () => {
                             <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
                             <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
+                        </>    
                     )
                 }
             </div>

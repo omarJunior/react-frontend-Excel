@@ -13,6 +13,7 @@ import { Productos } from './components/productos/Productos';
 import { Helado } from './components/helados/Helado';
 import { Vehiculos } from './components/vehiculos/Vehiculo';
 import { SaberPro } from './components/saberpro/SaberPro';
+import { Concesionario } from './components/concesionario/Concesionario';
 
 import { ClienteFormModal } from './components/clientes/ClienteFormModal';
 import { HeladoFormModal } from './components/helados/HeladoFormModal';
@@ -21,6 +22,7 @@ import { ProductoFormModal } from './components/productos/ProductoFormModal';
 import { VehiculoFormModal } from './components/vehiculos/VehiculoFormModal';
 import { ArticuloFormModal } from './components/articulos/ArticuloFormModal';
 import { SaberProFormModal } from './components/saberpro/SaberProFormModal';
+import { ConcesionarioFormModal } from './components/concesionario/ConcesionarioFormModal';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -40,6 +42,9 @@ function App() {
 
             <Route exact path="/clientes" component={Clientes} />
             <Route exact path="/clientes/:id" component={ClienteFormModal} />
+
+            <Route exact path="/concesionario" component={Concesionario} />
+            <Route exact path="/concesionario/:id" component={ConcesionarioFormModal} />
 
             <Route exact path="/helados" component={Helado} />
             <Route exact path="/helados/:id" component={HeladoFormModal} />

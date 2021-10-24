@@ -301,7 +301,7 @@ export const Vehiculos = () => {
                 {
                     localStorage.getItem("vehiculos") !== null && !estado_storage &&(
                         <>
-                        <div className="container mb-4 mt-4">
+                        <div className="container mb-4">
                             <Modal isOpen={modal_state} >
                                 <ModalHeader>
                                     inserta el vehiculo!

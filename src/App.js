@@ -28,11 +28,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
-    <div>
+    <>
       <Router>
         <Header />
         <Switch>
-            <Route exact path="/content" component={Contenido} />
+            <Route exact path="/home" component={Contenido} />
 
             <Route exact path="/articulos" component={Articulo}/>
             <Route exact path="/articulos/:id" component={ArticuloFormModal} />
@@ -58,12 +58,12 @@ function App() {
             <Route exact path="/saberPro" component={SaberPro}/>
             <Route exact path="/saberPro/:id" component={SaberProFormModal} />
 
-            <Redirect to="/content"/>
+            <Redirect to="/home"/>
           </Switch>
 
-          {/* <Footer /> */}
+          <Footer />
       </Router>
-    </div>
+    </>
   );
 }
 

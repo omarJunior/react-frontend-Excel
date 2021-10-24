@@ -1,10 +1,11 @@
 import React from 'react';
+import Slider from './Slider/Slider';
 
 export const Contenido = () => {
 
     return(
-        <div>
-            <h1>Contenido XD</h1>
+        <div className="container">
+            <Slider />
         </div>
     )    
 }

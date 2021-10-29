@@ -341,7 +341,7 @@ export const Productos = () => {
                                         </FormGroup>
                                     </ModalBody>
                                     <ModalFooter>
-                                        <Button color="primary" onClick={insertarProducto}>Actualizar Datos</Button>
+                                        <Button color="primary" onClick={insertarProducto}>Insertar datos</Button>
                                         <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                     </ModalFooter>
                                 </Modal>

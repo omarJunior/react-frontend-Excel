@@ -333,7 +333,7 @@ export const Vehiculos = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarVehiculo}>Actualizar Datos</Button>
+                                    <Button color="primary" onClick={insertarVehiculo}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

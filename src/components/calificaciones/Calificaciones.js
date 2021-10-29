@@ -414,7 +414,7 @@ export const Calificaciones = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarCalificacion}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarCalificacion}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

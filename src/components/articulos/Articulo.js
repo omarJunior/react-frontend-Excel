@@ -335,7 +335,7 @@ export const Articulo = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarArticulo}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarArticulo}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

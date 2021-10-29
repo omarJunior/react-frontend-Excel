@@ -359,7 +359,7 @@ export const Concesionario = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarConcesionario}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarConcesionario}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

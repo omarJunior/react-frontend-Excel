@@ -320,7 +320,7 @@ export const Helado = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarHelado}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarHelado}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

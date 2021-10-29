@@ -362,7 +362,7 @@ export const SaberPro = () => {
 
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarPruebaSaberPro}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarPruebaSaberPro}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

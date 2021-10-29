@@ -353,7 +353,7 @@ export const Clientes = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarCliente}>Insertar Datos</Button>
+                                    <Button color="primary" onClick={insertarCliente}>Insertar datos</Button>
                                     <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>

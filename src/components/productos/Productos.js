@@ -296,12 +296,12 @@ export const Productos = () => {
                     <div className="div-submit">
                     <input 
                         type="submit"
-                        className="btn btn-success"
+                        className="btn btn-dark"
                         value="Cargar excel de productos"
                     />
                     </div>
                 </form>
-                <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Productos</button>
+                <button className="btn btn-dark mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Productos</button>
                 {
                     localStorage.getItem("productos") !== null && !estado_storage &&(
                         <>
@@ -341,12 +341,12 @@ export const Productos = () => {
                                         </FormGroup>
                                     </ModalBody>
                                     <ModalFooter>
-                                        <Button color="primary" onClick={insertarProducto}>Insertar datos</Button>
-                                        <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                        <Button className="btn btn-dark" onClick={insertarProducto}>Insertar datos</Button>
+                                        <Button className="btn btn-dark" onClick={cerrarModal}>Cerrar</Button>
                                     </ModalFooter>
                                 </Modal>
                             </div>
-                            <Button onClick={()=> abrirModal()} className="btn btn-success cl3">Add+</Button>
+                            <Button onClick={()=> abrirModal()} className="btn btn-dark cl3">Add+</Button>
                             <div className="table-responsive ms-4">
                             <DataTable 
                                 columns={columnas}
@@ -362,8 +362,8 @@ export const Productos = () => {
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
                                 />
-                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
-                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
+                            <button className="btn btn-dark mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                            <button className="btn btn-dark mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                             </div>
                         </>
                     )

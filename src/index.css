@@ -6,9 +6,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: url('./fondo.jpg');
-  background-size: 100vh 100vw;
-
 }
 
 code {

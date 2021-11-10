@@ -137,8 +137,8 @@ export const VehiculoFormModal = () => {
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={actualizarVehiculos}>Actualizar Datos</Button>
-                        <Button color="secondary" onClick={cerrarModal_edit}>Cerrar</Button>
+                        <Button className="btn btn-dark" onClick={actualizarVehiculos}>Actualizar Datos</Button>
+                        <Button className="btn btn-dark" onClick={cerrarModal_edit}>Cerrar</Button>
                     </ModalFooter>
                 </Modal>
             </div>

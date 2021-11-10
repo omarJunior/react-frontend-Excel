@@ -213,8 +213,8 @@ export const ConcesionarioFormModal = () => {
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button color="primary" onClick={actualizarConcesionario}>Actualizar Datos</Button>
-                    <Button color="secondary" onClick={cerrarModal_edit}>Cerrar</Button>
+                    <Button className="btn btn-dark" onClick={actualizarConcesionario}>Actualizar Datos</Button>
+                    <Button className="btn btn-dark" onClick={cerrarModal_edit}>Cerrar</Button>
                 </ModalFooter>
             </Modal>
         </div>

@@ -164,8 +164,8 @@ export const SaberProFormModal = () => {
 
             </ModalBody>
             <ModalFooter>
-                <Button color="primary" onClick={actualizarSaberPro}>Insertar Datos</Button>
-                <Button color="secondary" onClick={cerrarModal_edit}>Cerrar</Button>
+                <Button className="btn btn-dark" onClick={actualizarSaberPro}>Insertar Datos</Button>
+                <Button className="btn btn-dark" onClick={cerrarModal_edit}>Cerrar</Button>
             </ModalFooter>
         </Modal>
     </div>

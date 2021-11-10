@@ -138,8 +138,8 @@ export const HeladoFormModal = () => {
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button color="primary" onClick={actualizarHelado}>Actualizar Datos</Button>
-                    <Button color="secondary" onClick={cerrarModal_edit}>Cerrar</Button>
+                    <Button className="btn btn-dark" onClick={actualizarHelado}>Actualizar Datos</Button>
+                    <Button className="btn btn-dark" onClick={cerrarModal_edit}>Cerrar</Button>
                 </ModalFooter>
             </Modal>
         </div>

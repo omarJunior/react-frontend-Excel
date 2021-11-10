@@ -6,6 +6,6 @@ export const Contenido = () => {
     return(
         <div className="container">
             <Slider />
-        </div>
+        </div>  
     )    
 }

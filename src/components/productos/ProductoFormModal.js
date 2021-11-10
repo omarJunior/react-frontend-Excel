@@ -142,8 +142,8 @@ export const ProductoFormModal = () => {
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={actualizarProductos}>Actualizar Datos</Button>
-                        <Button color="secondary" onClick={cerrarModal_edit}>Cerrar</Button>
+                        <Button className="btn btn-dark" onClick={actualizarProductos}>Actualizar Datos</Button>
+                        <Button className="btn btn-dark" onClick={cerrarModal_edit}>Cerrar</Button>
                     </ModalFooter>
                 </Modal>
             </div>

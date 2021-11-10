@@ -292,12 +292,12 @@ export const Vehiculos = () => {
                    <div className="div-submit">
                    <input 
                         type="submit"
-                        className="btn btn-success"
+                        className="btn btn-dark"
                         value="Cargar excel de vehiculos"
                     />
                    </div>
                 </form>
-                <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Vehiculos</button>
+                <button className="btn btn-dark mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Vehiculos</button>
                 {
                     localStorage.getItem("vehiculos") !== null && !estado_storage &&(
                         <>
@@ -333,8 +333,8 @@ export const Vehiculos = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarVehiculo}>Insertar datos</Button>
-                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                    <Button className="btn btn-dark" onClick={insertarVehiculo}>Insertar datos</Button>
+                                    <Button className="btn btn-dark" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>
                         </div>
@@ -354,8 +354,8 @@ export const Vehiculos = () => {
                                 fixedHeaderScrollHeight="1000px"
                                 subHeader
                                 />
-                            <button className="btn btn-success mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
-                            <button className="btn btn-success mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
+                            <button className="btn btn-dark mt-4 mb-2 cl" onClick={handleClickRemoveTable}>Eliminar tabla</button>
+                            <button className="btn btn-dark mt-4 mb-2 cl2" onClick={() => handleClickDowload(data_storage)}>Descargar csv</button>
                         </div>
                         </>    
                     )

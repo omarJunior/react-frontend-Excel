@@ -290,12 +290,12 @@ export const Articulo = () => {
                   <div className="div-submit">
                     <input 
                             type="submit"
-                            className="btn btn-success"
+                            className="btn btn-dark"
                             value="Cargar excel de articulos"
                         />
                     </div> 
                 </form>
-                <button className="btn btn-success mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Articulos</button>
+                <button className="btn btn-dark mt-4 mb-2 cl" onClick={handleButtonClick}>Mostrar Articulos</button>
                 {
                     localStorage.getItem("articulos") !== null && !estado_storage &&(
                         <>
@@ -335,8 +335,8 @@ export const Articulo = () => {
                                     </FormGroup>
                                 </ModalBody>
                                 <ModalFooter>
-                                    <Button color="primary" onClick={insertarArticulo}>Insertar datos</Button>
-                                    <Button color="secondary" onClick={cerrarModal}>Cerrar</Button>
+                                    <Button className="btn btn-dark" onClick={insertarArticulo}>Insertar datos</Button>
+                                    <Button className="btn btn-dark" onClick={cerrarModal}>Cerrar</Button>
                                 </ModalFooter>
                             </Modal>
                         </div>
